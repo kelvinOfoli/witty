@@ -28,8 +28,10 @@ const CanvasMap = ({
     };
   });
   return (
-    <View style={styles.container}>
-      <Animated.View style={[styles.blueBox, rStyles]} />
+    <View style={styles.shadow}>
+      <View style={styles.container}>
+        <Animated.View style={[styles.blueBox, rStyles]} />
+      </View>
     </View>
   );
 };
@@ -48,16 +50,15 @@ const styles = StyleSheet.create({
   container: {
     alignItems: "center",
     justifyContent: "center",
-    position: "absolute",
-    right: 10,
-    bottom: 10,
     backgroundColor: "white",
     width: 70,
     height: 70,
     borderRadius: 5,
     borderCurve: "continuous",
     zIndex: 100,
-    // overflow: "hidden",
+    overflow: "hidden",
+  },
+  shadow: {
     shadowColor: "#000",
     shadowOffset: {
       width: 0,
@@ -66,5 +67,9 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 3.84,
     elevation: 4,
+    overflow: undefined,
+    position: "absolute",
+    right: 10,
+    bottom: 10,
   },
 });
