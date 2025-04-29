@@ -17,7 +17,7 @@ const GroceryList = () => {
         overflow: "visible",
       }}
     >
-      <GroceryHeader />
+      {/* <GroceryHeader /> */}
 
       <Animated.FlatList
         data={GROCERY_LIST}

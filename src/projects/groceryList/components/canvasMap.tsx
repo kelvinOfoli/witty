@@ -1,12 +1,12 @@
 import React from "react";
 import { StyleSheet, View } from "react-native";
 import Animated, {
+  Extrapolation,
+  interpolate,
   SharedValue,
   useAnimatedStyle,
-  interpolate,
-  Extrapolation,
 } from "react-native-reanimated";
-import { CANVAS_WIDTH, CANVAS_HEIGHT } from "./canvas";
+import { CANVAS_HEIGHT, CANVAS_WIDTH } from "./canvas";
 
 const CanvasMap = ({
   x,

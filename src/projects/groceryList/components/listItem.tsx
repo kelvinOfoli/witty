@@ -32,17 +32,16 @@ const listItem = (props: ListItem) => {
           style={{
             width: "100%",
             height: 100,
-            // backgroundColor: "red",
             position: "absolute",
             zIndex: 100,
           }}
           onPress={(e) => {
             if (expanded.value) {
               expanded.value = false;
-              height.value = withSpring(200, { damping: 13, mass: 0.7 });
+              height.value = withSpring(200, { damping: 13, mass: 0.5 });
             } else {
               expanded.value = true;
-              height.value = withSpring(500, { damping: 13, mass: 0.7 });
+              height.value = withSpring(500, { damping: 13, mass: 0.5 });
             }
           }}
         />
@@ -54,15 +53,17 @@ const listItem = (props: ListItem) => {
 
           <View style={[rowStyle, { gap: 3 }]}>
             <MaterialCommunityIcons name="food" size={10} color="#00000070" />
-            <Text>{props.items.length}</Text>
+            <Text>
+              {props.items.reduce((acc, item) => acc + item.quantity, 0)}
+            </Text>
           </View>
         </View>
         <Text style={styles.title}>{props.name}</Text>
         <Text style={styles.desc}>{props.desc}</Text>
 
         <GroceryPreview items={props.items} isExpanded={expanded} />
-        <GroceryCanvas isExpanded={expanded} />
-      </Animated.View>{" "}
+        <GroceryCanvas items={props.items} isExpanded={expanded} />
+      </Animated.View>
     </View>
   );
 };

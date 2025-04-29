@@ -1,23 +1,23 @@
-import { degressToRadians } from "@/src/utils";
 import {
   Canvas,
   Circle,
+  DataSourceParam,
   Group,
   Image as SkiaImage,
+  useFont,
   useImage,
 } from "@shopify/react-native-skia";
-import React, { useEffect } from "react";
+import React, { Fragment, useEffect } from "react";
 import { Dimensions, StyleSheet } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, {
   SharedValue,
-  useAnimatedProps,
+  useAnimatedReaction,
   useAnimatedStyle,
   useSharedValue,
   withDecay,
-  withTiming,
-  useAnimatedReaction,
   withSpring,
+  withTiming,
 } from "react-native-reanimated";
 import { Item } from "../types";
 import CanvasMap from "./canvasMap";
@@ -27,36 +27,7 @@ export const CANVAS_WIDTH = width * 0.89;
 export const CANVAS_HEIGHT = 400;
 export const OFFSET = 50;
 
-const images = [
-  {
-    src: require("@/src/assets/images/groceries/lemonade.png"),
-    x: 20,
-    y: 100,
-    rotation: degressToRadians(10),
-  },
-  {
-    src: require("@/src/assets/images/groceries/draft.png"),
-    x: 150,
-    y: 200,
-    rotation: degressToRadians(-10),
-  },
-  {
-    src: require("@/src/assets/images/groceries/pesto.png"),
-    x: 300,
-    y: 150,
-    rotation: degressToRadians(40),
-  },
-];
-
-const Dot = ({
-  index,
-  xPosition,
-  yPosition,
-}: {
-  index: number;
-  xPosition: SharedValue<number>;
-  yPosition: SharedValue<number>;
-}) => {
+const Dot = ({ index }: { index: number }) => {
   const currentRow = Math.floor(index / 21) * 20;
   const currentColumn = Math.floor(index % 21) * 20;
 
@@ -69,14 +40,14 @@ const GroceryCanvas = ({
   items?: Item[];
   isExpanded: SharedValue<boolean>;
 }) => {
+  const font = useFont(require("@/src/assets/fonts/SpaceMono-Regular.ttf"), 12);
+  const images = items;
+
   const dotsForHeight = Math.round(height / 20);
   const numsArray = Array.from(Array(12 * dotsForHeight).keys());
 
   const translateX = useSharedValue(0);
   const translateY = useSharedValue(0);
-
-  const xPosition = useSharedValue(-1);
-  const yPosition = useSharedValue(-1);
 
   useEffect(() => {
     if (isExpanded.value == true) {
@@ -133,14 +104,7 @@ const GroceryCanvas = ({
     <Animated.View style={ranimatedStyle}>
       <Canvas style={styles.container}>
         {numsArray.map((index) => {
-          return (
-            <Dot
-              key={index}
-              index={index}
-              xPosition={xPosition}
-              yPosition={yPosition}
-            />
-          );
+          return <Dot key={index} index={index} />;
         })}
       </Canvas>
       <GestureDetector gesture={panGesture}>
@@ -156,10 +120,16 @@ const GroceryCanvas = ({
             }}
           >
             <Group>
-              {images.map((img, index) => {
-                const image = useImage(img.src);
+              {images?.map((img, index) => {
+                const image = useImage(img.image as DataSourceParam);
                 const x = useSharedValue(-100);
                 const y = useSharedValue(-100);
+                const qx = useSharedValue(-100);
+                const qy = useSharedValue(-100);
+                // const opacity = useSharedValue(0);
+
+                const pivotX = 150 / 2;
+                const pivotY = 150 / 2;
 
                 useAnimatedReaction(
                   () => {
@@ -169,28 +139,55 @@ const GroceryCanvas = ({
                     if (val) {
                       x.value = withSpring(img.x);
                       y.value = withSpring(img.y);
+
+                      qx.value = withSpring(img.x + 150);
+                      qy.value = withSpring(img.y + 150);
                     } else {
-                      x.value = withSpring(-100);
-                      y.value = withSpring(-100);
+                      x.value = withSpring(
+                        img.x + (index % 2 == 0 ? -100 : 100)
+                      );
+                      y.value = withSpring(img.y + 100);
+
+                      qx.value = withSpring(-100);
+                      qy.value = withSpring(-100);
                     }
                   }
                 );
 
-                return image ? (
-                  <SkiaImage
-                    key={index}
-                    image={image}
-                    x={x}
-                    y={y}
-                    width={150}
-                    height={150}
-                    transform={[
-                      // { translateX: pivotX, translateY: pivotY },
-                      { rotate: img.rotation },
-                      // { translateX: -pivotX, translateY: -pivotY },
-                    ]}
-                  />
-                ) : null;
+                return (
+                  <Fragment key={img.id}>
+                    {/* <Circle
+                      cx={img.x + 150}
+                      key={img.name + "circle"}
+                      cy={img.y + 150}
+                      r={10}
+                      color={"black"}
+                      opacity={opacity}
+                    >
+                      <Text
+                        x={img.x + 150}
+                        key={img.name + "text"}
+                        y={img.y + 150}
+                        text={img.quantity.toString()}
+                        font={font}
+                        color={"white"}
+                      />
+                    </Circle> */}
+                    <SkiaImage
+                      key={img.id + "img"}
+                      image={image}
+                      x={x}
+                      y={y}
+                      width={150}
+                      height={150}
+                      transform={[
+                        { translateX: pivotX, translateY: pivotY },
+                        { translateX: -pivotX, translateY: -pivotY },
+                        { rotate: img.rotation },
+                      ]}
+                    />
+                  </Fragment>
+                );
               })}
             </Group>
           </Canvas>

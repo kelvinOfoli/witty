@@ -62,7 +62,7 @@ const GroceryPreview = ({
         <Animated.Image
           key={items[0].id}
           source={items[0].image}
-          style={[styles.image, { right: -14 }, rstyles]}
+          style={[styles.image, { right: -30, zIndex: 1 }, rstyles]}
           resizeMode={"contain"}
         />
       )}
@@ -81,7 +81,7 @@ const GroceryPreview = ({
         <Animated.Image
           key={items[2].id}
           source={items[2].image}
-          style={[styles.image, { left: -14 }, rstyles3]}
+          style={[styles.image, { left: -25 }, rstyles3]}
           resizeMode={"contain"}
         />
       )}
