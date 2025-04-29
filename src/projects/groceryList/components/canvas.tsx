@@ -1,3 +1,4 @@
+import { degressToRadians } from "@/src/utils";
 import {
   Canvas,
   Circle,
@@ -10,17 +11,21 @@ import { Dimensions, StyleSheet } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, {
   SharedValue,
+  useAnimatedProps,
   useAnimatedStyle,
   useSharedValue,
   withDecay,
-  withSpring,
   withTiming,
   useAnimatedReaction,
+  withSpring,
 } from "react-native-reanimated";
 import { Item } from "../types";
-import { degressToRadians } from "@/src/utils";
+import CanvasMap from "./canvasMap";
 
 const { width, height } = Dimensions.get("window");
+export const CANVAS_WIDTH = width * 0.89;
+export const CANVAS_HEIGHT = 400;
+export const OFFSET = 50;
 
 const images = [
   {
@@ -64,8 +69,6 @@ const GroceryCanvas = ({
   items?: Item[];
   isExpanded: SharedValue<boolean>;
 }) => {
-  const CANVAS_WIDTH = width * 0.89;
-  const CANVAS_HEIGHT = 400;
   const dotsForHeight = Math.round(height / 20);
   const numsArray = Array.from(Array(12 * dotsForHeight).keys());
 
@@ -75,30 +78,30 @@ const GroceryCanvas = ({
   const xPosition = useSharedValue(-1);
   const yPosition = useSharedValue(-1);
 
+  useEffect(() => {
+    if (isExpanded.value == true) {
+      translateX.value = 0;
+      translateY.value = 0;
+    }
+  }, [isExpanded.value]);
+
   const panGesture = Gesture.Pan()
     .onChange((e) => {
-      // console.log("translationX: ", translateX.value + e.changeX);
-      // console.log("translationY: ", translateY.value + e.changeY);
       translateX.value += e.changeX;
       translateY.value += e.changeY;
     })
     .onEnd((e) => {
-      // const clampedX = Math.min(
-      //   Math.max(translateX.value, -CANVAS_WIDTH * 1.5),
-      //   CANVAS_WIDTH / 2
-      // );
-      // const clampedY = Math.min(
-      //   Math.max(translateY.value, -CANVAS_HEIGHT / 2),
-      //   CANVAS_HEIGHT / 2
-      // );
-
       translateX.value = withDecay({
         velocity: e.velocityX,
-        // clamp: [-CANVAS_WIDTH * 1.5, CANVAS_WIDTH / 2],
+        rubberBandEffect: true,
+        rubberBandFactor: 0.6,
+        clamp: [-CANVAS_WIDTH / 2 + OFFSET, CANVAS_WIDTH / 2 - OFFSET],
       });
       translateY.value = withDecay({
         velocity: e.velocityY,
-        // clamp: [-CANVAS_HEIGHT / 2, CANVAS_HEIGHT / 2],
+        rubberBandEffect: true,
+        rubberBandFactor: 0.6,
+        clamp: [-CANVAS_HEIGHT / 2 + OFFSET, CANVAS_HEIGHT / 2 - OFFSET],
       });
     });
 
@@ -107,13 +110,12 @@ const GroceryCanvas = ({
       { translateX: translateX.value },
       { translateY: translateY.value },
     ],
-    // backgroundColor: "red",
   }));
 
   const ranimatedStyle = useAnimatedStyle(
     () => ({
       position: "absolute",
-      bottom: withTiming(isExpanded.value ? 0 : -400),
+      bottom: withTiming(isExpanded.value ? 0 : -403),
       height: CANVAS_HEIGHT,
       width: CANVAS_WIDTH,
       backgroundColor: "white",
@@ -151,25 +153,35 @@ const GroceryCanvas = ({
           <Canvas
             style={{
               flex: 1,
-              //  backgroundColor: "red"
             }}
           >
-            <Group
-            // transform={[
-            //   { translateX: translateX.value },
-            //   { translateY: translateY.value },
-            // ]}
-            >
+            <Group>
               {images.map((img, index) => {
                 const image = useImage(img.src);
-                // const pivotX = 150 / 2;
-                // const pivotY = 150 / 2;
+                const x = useSharedValue(-100);
+                const y = useSharedValue(-100);
+
+                useAnimatedReaction(
+                  () => {
+                    return isExpanded.value;
+                  },
+                  (val) => {
+                    if (val) {
+                      x.value = withSpring(img.x);
+                      y.value = withSpring(img.y);
+                    } else {
+                      x.value = withSpring(-100);
+                      y.value = withSpring(-100);
+                    }
+                  }
+                );
+
                 return image ? (
                   <SkiaImage
                     key={index}
                     image={image}
-                    x={img.x}
-                    y={img.y}
+                    x={x}
+                    y={y}
                     width={150}
                     height={150}
                     transform={[
@@ -184,6 +196,7 @@ const GroceryCanvas = ({
           </Canvas>
         </Animated.View>
       </GestureDetector>
+      <CanvasMap x={translateX} y={translateY} />
     </Animated.View>
   );
 };

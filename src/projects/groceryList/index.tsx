@@ -13,8 +13,8 @@ const GroceryList = () => {
       style={{
         flex: 1,
         paddingTop: top,
-        paddingHorizontal: "5%",
         backgroundColor: "#fff",
+        overflow: "visible",
       }}
     >
       <GroceryHeader />
@@ -23,7 +23,10 @@ const GroceryList = () => {
         data={GROCERY_LIST}
         renderItem={({ item }) => <ListItem key={item.id} {...item} />}
         showsVerticalScrollIndicator={false}
-        // style={{ flex: 1 }}
+        style={{
+          width: "100%",
+          paddingHorizontal: "5%",
+        }}
       />
     </View>
   );

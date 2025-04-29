@@ -22,52 +22,65 @@ const listItem = (props: ListItem) => {
   });
 
   return (
-    <Animated.View
-      //   activeOpacity={1}
-      pointerEvents={expanded.value ? "none" : "auto"}
-      style={[styles.container, rstyles]}
-    >
-      <TouchableOpacity
-        style={{
-          width: "100%",
-          height: 100,
-          // backgroundColor: "red",
-          position: "absolute",
-          zIndex: 100,
-        }}
-        onPress={(e) => {
-          if (expanded.value) {
-            expanded.value = false;
-            height.value = withSpring(200, { damping: 13, mass: 0.7 });
-          } else {
-            expanded.value = true;
-            height.value = withSpring(500, { damping: 13, mass: 0.7 });
-          }
-        }}
-      />
-      <View style={[styles.top, { paddingHorizontal: 15 }]}>
-        <View style={[rowStyle, { gap: 3 }]}>
-          <Octicons name="history" size={10} color="#00000080" />
-          <Text style={styles.dateCreated}>{props.dateCreated}</Text>
-        </View>
+    <View style={styles.wrapper}>
+      <Animated.View
+        //   activeOpacity={1}
+        pointerEvents={expanded.value ? "none" : "auto"}
+        style={[styles.container, rstyles]}
+      >
+        <TouchableOpacity
+          style={{
+            width: "100%",
+            height: 100,
+            // backgroundColor: "red",
+            position: "absolute",
+            zIndex: 100,
+          }}
+          onPress={(e) => {
+            if (expanded.value) {
+              expanded.value = false;
+              height.value = withSpring(200, { damping: 13, mass: 0.7 });
+            } else {
+              expanded.value = true;
+              height.value = withSpring(500, { damping: 13, mass: 0.7 });
+            }
+          }}
+        />
+        <View style={[styles.top, { paddingHorizontal: 15 }]}>
+          <View style={[rowStyle, { gap: 3 }]}>
+            <Octicons name="history" size={10} color="#00000080" />
+            <Text style={styles.dateCreated}>{props.dateCreated}</Text>
+          </View>
 
-        <View style={[rowStyle, { gap: 3 }]}>
-          <MaterialCommunityIcons name="food" size={10} color="#00000070" />
-          <Text>{props.items.length}</Text>
+          <View style={[rowStyle, { gap: 3 }]}>
+            <MaterialCommunityIcons name="food" size={10} color="#00000070" />
+            <Text>{props.items.length}</Text>
+          </View>
         </View>
-      </View>
-      <Text style={styles.title}>{props.name}</Text>
-      <Text style={styles.desc}>{props.desc}</Text>
+        <Text style={styles.title}>{props.name}</Text>
+        <Text style={styles.desc}>{props.desc}</Text>
 
-      <GroceryPreview items={props.items} isExpanded={expanded} />
-      <GroceryCanvas isExpanded={expanded} />
-    </Animated.View>
+        <GroceryPreview items={props.items} isExpanded={expanded} />
+        <GroceryCanvas isExpanded={expanded} />
+      </Animated.View>{" "}
+    </View>
   );
 };
 
 export default listItem;
 
 const styles = StyleSheet.create({
+  wrapper: {
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    width: "100%",
+    shadowOpacity: 0.2,
+    shadowRadius: 3.84,
+    elevation: 4,
+  },
   container: {
     width: "100%",
     backgroundColor: "#f3f2f2",
